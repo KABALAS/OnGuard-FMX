@@ -2,7 +2,7 @@
 // Copyright (c) 1995, 2016 by Embarcadero Technologies, Inc.
 // All rights reserved
 
-// (DO NOT EDIT: machine generated header) 'OnGuardFMXDR.dpk' rev: 31.00 (Windows)
+// (DO NOT EDIT: machine generated header) 'OnGuardFMXDR.dpk' rev: 32.00 (Windows)
 
 #ifndef OnguardfmxdrHPP
 #define OnguardfmxdrHPP
@@ -39,9 +39,9 @@
 #include <System.Messaging.hpp>	// (rtl)
 #include <System.Actions.hpp>	// (rtl)
 #include <System.Devices.hpp>	// (rtl)
+#include <FMX.Utils.hpp>	// (fmx)
 #include <FMX.Text.hpp>	// (fmx)
 #include <FMX.TextLayout.hpp>	// (fmx)
-#include <FMX.Utils.hpp>	// (fmx)
 #include <FMX.Graphics.hpp>	// (fmx)
 #include <FMX.BehaviorManager.hpp>	// (fmx)
 #include <FMX.Styles.hpp>	// (fmx)
@@ -130,6 +130,11 @@
 #include <FMX.Memo.Style.hpp>	// (fmx)
 #include <FMX.Memo.Win.hpp>	// (fmx)
 #include <FMX.Memo.hpp>	// (fmx)
+// SO_SFX: 240
+// PRG_EXT: .bpl
+// BPI_DIR: C:\Users\Public\Documents\Embarcadero\Studio\19.0\Dcp
+// OBJ_DIR: C:\Users\Public\Documents\Embarcadero\Studio\19.0\Dcp
+// OBJ_EXT: .obj
 
 //-- user supplied -----------------------------------------------------------
 

@@ -2,7 +2,7 @@
 // Copyright (c) 1995, 2016 by Embarcadero Technologies, Inc.
 // All rights reserved
 
-// (DO NOT EDIT: machine generated header) 'OnGuardFMXDR.dpk' rev: 31.00 (iOS)
+// (DO NOT EDIT: machine generated header) 'OnGuardFMXDR.dpk' rev: 32.00 (iOS)
 
 #ifndef OnguardfmxdrHPP
 #define OnguardfmxdrHPP
@@ -24,6 +24,11 @@
 #include <FMX.onguard2.hpp>
 #include <FMX.onguard3.hpp>
 #include <FMX.onguard4.hpp>
+// SO_PFX: bpl
+// SO_SFX: 240
+// PRG_EXT: .a
+// OBJ_DIR: C:\Users\Public\Documents\Embarcadero\Studio\19.0\Dcp\iOSDevice32
+// OBJ_EXT: .o
 
 //-- user supplied -----------------------------------------------------------
 

@@ -2,7 +2,7 @@
 // Copyright (c) 1995, 2016 by Embarcadero Technologies, Inc.
 // All rights reserved
 
-// (DO NOT EDIT: machine generated header) 'OnGuardFMXDR.dpk' rev: 31.00 (MacOS)
+// (DO NOT EDIT: machine generated header) 'OnGuardFMXDR.dpk' rev: 32.00 (MacOS)
 
 #ifndef OnguardfmxdrHPP
 #define OnguardfmxdrHPP
@@ -105,9 +105,9 @@
 #include <System.RegularExpressionsConsts.hpp>	// (rtl)
 #include <System.RegularExpressionsCore.hpp>	// (rtl)
 #include <System.RegularExpressions.hpp>	// (rtl)
+#include <FMX.Utils.hpp>	// (fmx)
 #include <FMX.Text.hpp>	// (fmx)
 #include <FMX.TextLayout.hpp>	// (fmx)
-#include <FMX.Utils.hpp>	// (fmx)
 #include <FMX.Graphics.hpp>	// (fmx)
 #include <FMX.BehaviorManager.hpp>	// (fmx)
 #include <FMX.Styles.hpp>	// (fmx)
@@ -220,6 +220,12 @@
 #include <FMX.Memo.Style.hpp>	// (fmx)
 #include <FMX.Memo.hpp>	// (fmx)
 #include <System.IniFiles.hpp>	// (rtl)
+// SO_PFX: bpl
+// SO_SFX: 240
+// PRG_EXT: .dylib
+// BPI_DIR: C:\Users\Public\Documents\Embarcadero\Studio\19.0\Dcp\OSX32
+// OBJ_DIR: C:\Users\Public\Documents\Embarcadero\Studio\19.0\Dcp\OSX32
+// OBJ_EXT: .o
 
 //-- user supplied -----------------------------------------------------------
 
