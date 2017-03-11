@@ -221,7 +221,7 @@
 #include <FMX.Memo.hpp>	// (fmx)
 #include <System.IniFiles.hpp>	// (rtl)
 // SO_PFX: bpl
-// SO_SFX: 240
+// SO_SFX: 250
 // PRG_EXT: .dylib
 // BPI_DIR: C:\Users\Public\Documents\Embarcadero\Studio\19.0\Dcp\OSX32
 // OBJ_DIR: C:\Users\Public\Documents\Embarcadero\Studio\19.0\Dcp\OSX32

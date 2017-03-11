@@ -130,7 +130,7 @@
 #include <FMX.Memo.Style.hpp>	// (fmx)
 #include <FMX.Memo.Win.hpp>	// (fmx)
 #include <FMX.Memo.hpp>	// (fmx)
-// SO_SFX: 240
+// SO_SFX: 250
 // PRG_EXT: .bpl
 // BPI_DIR: C:\Users\Public\Documents\Embarcadero\Studio\19.0\Dcp
 // OBJ_DIR: C:\Users\Public\Documents\Embarcadero\Studio\19.0\Dcp

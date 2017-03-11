@@ -225,7 +225,7 @@
 #include <FMX.Memo.Win.hpp>	// (fmx)
 #include <FMX.Memo.hpp>	// (fmx)
 #include <System.IniFiles.hpp>	// (rtl)
-// SO_SFX: 240
+// SO_SFX: 250
 // PRG_EXT: .bpl
 // BPI_DIR: C:\Users\Public\Documents\Embarcadero\Studio\19.0\Dcp\Win64
 // OBJ_DIR: C:\Users\Public\Documents\Embarcadero\Studio\19.0\Dcp\Win64
