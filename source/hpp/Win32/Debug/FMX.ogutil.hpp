@@ -42,6 +42,8 @@ typedef System::StaticArray<int, 512000000> TIntegerArray;
 
 typedef TIntegerArray *PIntegerArray;
 
+enum DECLSPEC_DENUM TRegAccess : unsigned char { raNormal, ra32Like64, ra64Like32 };
+
 struct DECLSPEC_DRECORD TIntegerRec
 {
 	
@@ -229,7 +231,7 @@ static const TKeyType DefKeyType = (TKeyType)(0);
 extern DELPHI_PACKAGE int BaseDate;
 extern DELPHI_PACKAGE void __fastcall MixBlock(const T128Bit &Matrix, void *Block, bool Encrypt);
 extern DELPHI_PACKAGE int __fastcall StringHashElf(const System::UnicodeString Str);
-extern DELPHI_PACKAGE int __fastcall CreateMachineID(TEsMachineInfoSet MachineInfo, bool Ansi = true);
+extern DELPHI_PACKAGE int __fastcall CreateMachineID(TEsMachineInfoSet MachineInfo, bool Ansi = true, TRegAccess Win32AsWin64 = (TRegAccess)(0x0));
 extern DELPHI_PACKAGE void __fastcall GenerateRandomKeyPrim(void *Key, unsigned KeySize);
 extern DELPHI_PACKAGE void __fastcall GenerateTMDKeyPrim(void *Key, unsigned KeySize, const System::UnicodeString Str);
 extern DELPHI_PACKAGE void __fastcall GenerateMD5KeyPrim(TKey &Key, const System::UnicodeString Str);

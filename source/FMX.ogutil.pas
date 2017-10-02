@@ -72,6 +72,10 @@ type
   PIntegerArray = ^TIntegerArray;
   TIntegerArray = array [0..MaxStructSize div SizeOf(Integer) - 1] of Integer;
 
+{$IFDEF MSWINDOWS}
+  TRegAccess = (raNormal, ra32Like64, ra64Like32);
+{$ENDIF}
+
   TIntegerRec = record
     case Byte of
       1: (Lo: Word;
@@ -209,7 +213,7 @@ procedure GenerateTMDKeyPrim(var Key; KeySize : Cardinal; const Str : string);
 procedure GenerateMD5KeyPrim(var Key: TKey; const Str : string);
 
 {modifier routines}
-function CreateMachineID(MachineInfo : TEsMachineInfoSet; Ansi: Boolean = True) : Integer;   {!!.05}
+function CreateMachineID(MachineInfo : TEsMachineInfoSet; Ansi: Boolean = True{$IFDEF MSWINDOWS}; Win32AsWin64: TRegAccess = TRegAccess.raNormal{$ENDIF}) : Integer;   {!!.05}
 function GenerateStringModifierPrim(const S : string) : Integer;
 function GenerateUniqueModifierPrim : Integer;
 function GenerateMachineModifierPrim : Integer;
@@ -736,7 +740,26 @@ end;
 {$REGION 'Win32 + Win64'}
 {$IFDEF MSWINDOWS}
 {!!.05} {added}
-function CreateMachineID(MachineInfo : TEsMachineInfoSet; Ansi: Boolean = True) : Integer;
+
+function IsWow64: Boolean;
+type
+  TIsWow64Process = function(Handle: Winapi.Windows.THandle; var Res: Winapi.Windows.BOOL): Winapi.Windows.BOOL; stdcall;
+var
+  IsWow64Result: Winapi.Windows.BOOL;
+  IsWow64Process: TIsWow64Process;
+begin
+  IsWow64Process := Winapi.Windows.GetProcAddress(Winapi.Windows.GetModuleHandle('kernel32'), 'IsWow64Process');
+  if Assigned(IsWow64Process) then
+  begin
+    if not IsWow64Process(Winapi.Windows.GetCurrentProcess, IsWow64Result) then
+      raise System.SysUtils.Exception.Create('IsWow64: bad process handle');
+    Result := IsWow64Result;
+  end
+  else
+    Result := False;
+end;
+
+function CreateMachineID(MachineInfo : TEsMachineInfoSet; Ansi: Boolean = True; Win32AsWin64: TRegAccess = TRegAccess.raNormal) : Integer;
 { Obtains information from:
     - Volume sizes (NOT free space)
     - Volume serial numbers
@@ -796,9 +819,24 @@ var
   // for ticket #8
   device  : array [0..2] of Char;                                {!!.15}
   subst   : array [0..1023] of Char;                             {!!.15}
+  Desired : REGSAM;
 begin
   Result := 0;
   InitTMD(Context);
+
+  Desired := KEY_QUERY_VALUE;
+  case Win32AsWin64 of
+    ra32Like64:
+    begin
+      if IsWow64 then
+        Desired := Desired or KEY_WOW64_64KEY;
+    end;
+    ra64Like32:
+    begin
+      if not IsWow64 then
+        Desired := Desired or KEY_WOW64_32KEY;
+    end;
+  end;
 
   {include user specific information}
   if Ansi then
@@ -808,7 +846,7 @@ begin
     begin
       UserInfoFound := False;
       { first look for registered info in \Windows\CurrentVersion }
-      if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, sCurVer, 0, KEY_QUERY_VALUE, RegKey) = ERROR_SUCCESS) then
+      if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, sCurVer, 0, Desired, RegKey) = ERROR_SUCCESS) then
       begin
         I := SizeOf(Buf);
         if RegQueryValueExA(RegKey, sRegOwner, nil, nil, @Buf, @I) = ERROR_SUCCESS then
@@ -824,7 +862,7 @@ begin
 
       { if not found, then look in \Windows NT\CurrentVersion }
       if not UserInfoFound then
-        if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, sCurVerNT, 0, KEY_QUERY_VALUE, RegKey) = ERROR_SUCCESS) then
+        if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, sCurVerNT, 0, Desired, RegKey) = ERROR_SUCCESS) then
         begin
           I := SizeOf(Buf);
           if RegQueryValueExA(RegKey, sRegOwner, nil, nil, @Buf, @I) = ERROR_SUCCESS then
@@ -845,7 +883,7 @@ begin
       UserInfoFound := False;
       { first look for registered info in \Windows\CurrentVersion }
       if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sCurVer, 0,
-          KEY_QUERY_VALUE, RegKey) = ERROR_SUCCESS) then
+          Desired, RegKey) = ERROR_SUCCESS) then
       begin
         I := SizeOf(Buf);
         if RegQueryValueEx(RegKey, sRegOwner, nil, nil, @Buf, @I) = ERROR_SUCCESS then
@@ -862,7 +900,7 @@ begin
       { if not found, then look in \Windows NT\CurrentVersion }
       if not UserInfoFound then
         if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sCurVerNT, 0,
-            KEY_QUERY_VALUE, RegKey) = ERROR_SUCCESS) then
+            Desired, RegKey) = ERROR_SUCCESS) then
         begin
           I := SizeOf(Buf);
           if RegQueryValueEx(RegKey, sRegOwner, nil, nil, @Buf, @I) = ERROR_SUCCESS then
@@ -942,7 +980,7 @@ begin
   begin
     if Ansi then
     begin
-      if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, sBIOS, 0, KEY_QUERY_VALUE, RegKey) = ERROR_SUCCESS) then
+      if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, sBIOS, 0, Desired, RegKey) = ERROR_SUCCESS) then
       begin
         I := SizeOf(Buf);
         if RegQueryValueExA(RegKey, sBIOSKey1, nil, nil, @Buf, @I) = ERROR_SUCCESS then
@@ -973,7 +1011,7 @@ begin
       end;
     end
     else
-      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sBIOS, 0, KEY_QUERY_VALUE, RegKey) = ERROR_SUCCESS) then
+      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sBIOS, 0, Desired, RegKey) = ERROR_SUCCESS) then
       begin
         I := SizeOf(Buf);
         if RegQueryValueEx(RegKey, sBIOSKey1, nil, nil, @Buf, @I) = ERROR_SUCCESS then
@@ -1008,7 +1046,7 @@ begin
   begin
     if Ansi then
     begin
-      if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, sCurVerNT, 0, KEY_QUERY_VALUE, RegKey) = ERROR_SUCCESS) then begin
+      if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, sCurVerNT, 0, Desired, RegKey) = ERROR_SUCCESS) then begin
         I := SizeOf(Buf);
         if RegQueryValueExA(RegKey, sProdKey1, nil, nil, @Buf, @I) = ERROR_SUCCESS then begin
           UpdateTMD(Context, Buf, I);
@@ -1026,7 +1064,7 @@ begin
     end
     else
     begin
-      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sCurVerNT, 0, KEY_QUERY_VALUE, RegKey) = ERROR_SUCCESS) then begin
+      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sCurVerNT, 0, Desired, RegKey) = ERROR_SUCCESS) then begin
         I := SizeOf(Buf);
         if RegQueryValueEx(RegKey, sProdKey1, nil, nil, @Buf, @I) = ERROR_SUCCESS then begin
           UpdateTMD(Context, Buf, I);
@@ -1049,7 +1087,7 @@ begin
   begin
     if Ansi then
     begin
-      if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, sCPU, 0, KEY_QUERY_VALUE, RegKey) = ERROR_SUCCESS) then begin
+      if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, sCPU, 0, Desired, RegKey) = ERROR_SUCCESS) then begin
         I := SizeOf(Buf);
         if RegQueryValueExA(RegKey, sCPUKey1, nil, nil, @Buf, @I) = ERROR_SUCCESS then begin
           UpdateTMD(Context, Buf, I);
@@ -1063,7 +1101,7 @@ begin
     end
     else
     begin
-      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sCPU, 0, KEY_QUERY_VALUE, RegKey) = ERROR_SUCCESS) then begin
+      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sCPU, 0, Desired, RegKey) = ERROR_SUCCESS) then begin
         I := SizeOf(Buf);
         if RegQueryValueEx(RegKey, sCPUKey1, nil, nil, @Buf, @I) = ERROR_SUCCESS then begin
           UpdateTMD(Context, Buf, I);
@@ -1082,7 +1120,7 @@ begin
   begin
     if Ansi then
     begin
-      if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, sCrypto, 0, KEY_QUERY_VALUE, RegKey) = ERROR_SUCCESS) then begin
+      if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, sCrypto, 0, Desired, RegKey) = ERROR_SUCCESS) then begin
         I := SizeOf(Buf);
         if RegQueryValueExA(RegKey, sMachID, nil, nil, @Buf, @I) = ERROR_SUCCESS then begin
           UpdateTMD(Context, Buf, I);
@@ -1092,7 +1130,7 @@ begin
     end
     else
     begin
-      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sCrypto, 0, KEY_QUERY_VALUE, RegKey) = ERROR_SUCCESS) then begin
+      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sCrypto, 0, Desired, RegKey) = ERROR_SUCCESS) then begin
         I := SizeOf(Buf);
         if RegQueryValueEx(RegKey, sMachID, nil, nil, @Buf, @I) = ERROR_SUCCESS then begin
           UpdateTMD(Context, Buf, I);
@@ -1107,7 +1145,7 @@ begin
   begin
     if Ansi then
     begin
-      if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, sDomain, 0, KEY_QUERY_VALUE, RegKey) = ERROR_SUCCESS) then begin
+      if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, sDomain, 0, Desired, RegKey) = ERROR_SUCCESS) then begin
         I := SizeOf(Buf);
         if RegQueryValueExA(RegKey, sDomainKey1, nil, nil, @Buf, @I) = ERROR_SUCCESS then begin
           UpdateTMD(Context, Buf, I);
@@ -1123,7 +1161,7 @@ begin
     end
     else
     begin
-      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sDomain, 0, KEY_QUERY_VALUE, RegKey) = ERROR_SUCCESS) then begin
+      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, sDomain, 0, Desired, RegKey) = ERROR_SUCCESS) then begin
         I := SizeOf(Buf);
         if RegQueryValueEx(RegKey, sDomainKey1, nil, nil, @Buf, @I) = ERROR_SUCCESS then begin
           UpdateTMD(Context, Buf, I);
